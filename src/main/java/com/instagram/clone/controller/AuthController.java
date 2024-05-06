@@ -27,27 +27,29 @@ public class AuthController {
 
     @SuppressWarnings("rawtypes")
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequestDTO body){
-        User user = this.repository.findByUsername(body.username()).orElseThrow(() -> new RuntimeException("User not found"));
-        if(passwordEncoder.matches(body.password(), user.getPassword())) {
+    public ResponseEntity login(@RequestBody LoginRequestDTO body) {
+        User user = this.repository.findByUsername(body.username())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (passwordEncoder.matches(body.password(), user.getPassword())) {
             String token = this.tokenService.generateToken(user);
             return ResponseEntity.ok(new ResponseDTO(user.getUsername(), token));
         }
         return ResponseEntity.badRequest().build();
     }
 
-
     @SuppressWarnings("rawtypes")
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+    public ResponseEntity register(@RequestBody RegisterRequestDTO body) {
         Optional<User> user = this.repository.findByEmail(body.email());
 
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             User newUser = new User();
             newUser.setPassword(passwordEncoder.encode(body.password()));
             newUser.setEmail(body.email());
             newUser.setUsername(body.username());
             newUser.setFullName(body.fullName());
+            newUser.setBio("Ainda não informado");
+            newUser.setProfilePicture("https://via.placeholder.com/150");
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
