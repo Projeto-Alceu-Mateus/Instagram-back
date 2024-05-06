@@ -34,7 +34,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/search").permitAll()
-                        
+                        .requestMatchers(HttpMethod.GET, "/user/{username}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/{userId}/follow/{targetId}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/{userId}/unfollow/{targetId}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
