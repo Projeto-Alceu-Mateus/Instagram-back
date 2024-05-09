@@ -24,4 +24,29 @@ public class UserService {
         newUser.setFullName(fullName);
         return userRepository.save(newUser);
     }
+
+    public void followUserByUsername(String currentUsername, String targetUsername) throws Exception {
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new Exception("Current user not found"));
+        User targetUser = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new Exception("Target user not found"));
+
+        // Verificar se já está seguindo
+        if (currentUser.getFollowing().stream().anyMatch(u -> u.getId().equals(targetUser.getId()))) {
+            throw new Exception("Already following");
+        }
+
+        userRepository.followUser(currentUser.getId(), targetUser.getId());
+    }
+
+    public void unfollowUserByUsername(String currentUsername, String targetUsername) throws Exception {
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new Exception("Current user not found"));
+        User targetUser = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new Exception("Target user not found"));
+
+       
+
+        userRepository.unfollowUser(currentUser.getId(), targetUser.getId());
+    }
 }
