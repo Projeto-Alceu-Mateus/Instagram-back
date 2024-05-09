@@ -1,6 +1,7 @@
 package com.instagram.clone.dto;
 
 public class UserProfileDTO {
+    private Long id;
     private String username;
     private String bio;
     private String profilePicture;
@@ -8,8 +9,9 @@ public class UserProfileDTO {
     private Long followingCount;
 
     // Construtor completo
-    public UserProfileDTO(String username, String bio, String profilePicture, Long followersCount,
+    public UserProfileDTO(Long id, String username, String bio, String profilePicture, Long followersCount,
             Long followingCount) {
+        this.id = id;
         this.username = username;
         this.bio = bio;
         this.profilePicture = profilePicture;
@@ -57,4 +59,13 @@ public class UserProfileDTO {
     public void setFollowingCount(Long followingCount) {
         this.followingCount = followingCount;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 }

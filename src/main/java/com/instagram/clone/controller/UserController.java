@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,10 +16,14 @@ import org.springframework.web.server.ResponseStatusException;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.UserRepository;
+import com.instagram.clone.service.UserService;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,6 +48,7 @@ public class UserController {
         Long followingCount = userRepository.countFollowingByUsername(username);
 
         UserProfileDTO userProfileDTO = new UserProfileDTO(
+                user.getId(),
                 user.getUsername(),
                 user.getBio(),
                 user.getProfilePicture(),
@@ -52,4 +58,37 @@ public class UserController {
         return ResponseEntity.ok(userProfileDTO);
     }
 
+    @PostMapping("/{currentUsername}/follow/{targetUsername}")
+    public ResponseEntity<?> followUserByUsername(@PathVariable String currentUsername,
+            @PathVariable String targetUsername) {
+        try {
+            userService.followUserByUsername(targetUsername, currentUsername);
+            return ResponseEntity.ok("User followed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{currentUsername}/unfollow/{targetUsername}")
+    public ResponseEntity<?> unfollowUserByUsername(@PathVariable String currentUsername,
+            @PathVariable String targetUsername) {
+        try {
+            userService.unfollowUserByUsername(targetUsername, currentUsername);
+            return ResponseEntity.ok("User unfollowed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{username}/isFollowing/{targetUsername}")
+    public ResponseEntity<Boolean> isUserFollowing(@PathVariable String username, @PathVariable String targetUsername) {
+        User targetUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
+
+        User loggedInUser = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Logged in user not found"));
+
+        boolean isFollowing = userRepository.isFollowing(loggedInUser.getId(), targetUser.getId());
+        return ResponseEntity.ok(isFollowing);
+    }
 }
