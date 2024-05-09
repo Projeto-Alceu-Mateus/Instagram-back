@@ -8,19 +8,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.instagram.clone.dto.PostDTO;
 import com.instagram.clone.dto.UserProfileDTO;
+import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
+import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
+import com.instagram.clone.service.PostService;
 import com.instagram.clone.service.UserService;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    @Autowired
+    private PostRepository PostRepository;
+    @Autowired
+    private PostService postService;
 
     @Autowired
     private UserService userService;
@@ -91,4 +101,25 @@ public class UserController {
         boolean isFollowing = userRepository.isFollowing(loggedInUser.getId(), targetUser.getId());
         return ResponseEntity.ok(isFollowing);
     }
+
+    @PostMapping("/{username}/newPost")
+    public ResponseEntity<?> createNewPost(@PathVariable String username, @RequestBody PostDTO postDTO) {
+        try {
+            postService.createPost(username, postDTO);
+            return ResponseEntity.ok("Post created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error creating post: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{username}/posts")
+    public ResponseEntity<List<Post>> getUserPosts(@PathVariable String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
+
+        List<Post> posts = PostRepository.findAllByUserId(user.getId());
+        return ResponseEntity.ok(posts);
+    }
+
 }

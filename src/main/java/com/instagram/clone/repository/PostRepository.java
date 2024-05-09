@@ -11,4 +11,6 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
     // Exemplo de busca de postagens por usuário
     List<Post> findAllByUserId(Long userId);
+
+
 }
