@@ -45,8 +45,6 @@ public class UserService {
         User targetUser = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new Exception("Target user not found"));
 
-       
-
         userRepository.unfollowUser(currentUser.getId(), targetUser.getId());
     }
 }
