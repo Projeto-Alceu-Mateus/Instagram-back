@@ -38,4 +38,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("SELECT COUNT(f) > 0 FROM User u JOIN u.following f WHERE u.id = :userId AND f.id = :targetId")
     boolean isFollowing(@Param("userId") Long userId, @Param("targetId") Long targetId);
+
+    @Query(value = "SELECT user_id FROM user_followers WHERE follower_id = :userId", nativeQuery = true)
+    List<Long> findUserIdsFollowedBy(Long userId);
 }

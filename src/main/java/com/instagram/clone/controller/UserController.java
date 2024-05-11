@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.instagram.clone.dto.FeedPostDTO;
 import com.instagram.clone.dto.PostDTO;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
+import com.instagram.clone.service.FeedService;
 import com.instagram.clone.service.PostService;
 import com.instagram.clone.service.UserService;
 
@@ -122,4 +124,19 @@ public class UserController {
         return ResponseEntity.ok(posts);
     }
 
+    @Autowired
+    private FeedService feedService;
+
+    @GetMapping("/{username}/feed")
+    public ResponseEntity<List<FeedPostDTO>> getUserFeed(@PathVariable String username) {
+
+        try {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
+            List<FeedPostDTO> feedPosts = feedService.getFeedForUserId(user.getId());
+            return ResponseEntity.ok(feedPosts);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
