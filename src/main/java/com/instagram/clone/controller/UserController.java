@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.instagram.clone.dto.FeedPostDTO;
 import com.instagram.clone.dto.PostDTO;
 import com.instagram.clone.dto.UserProfileDTO;
+import com.instagram.clone.dto.UserUpdateRequestDTO;
 import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.PostRepository;
@@ -138,5 +140,11 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PutMapping("/{username}/update")
+    public ResponseEntity<User> updateUser(@PathVariable String username, @RequestBody UserUpdateRequestDTO request) {
+        User updatedUser = userService.updateUser(username, request.getEmail(), request.getPassword(), request.getFullName(), request.getBio(), request.getProfilePicture());
+        return ResponseEntity.ok(updatedUser);
     }
 }

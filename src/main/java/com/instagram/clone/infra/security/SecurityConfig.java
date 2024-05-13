@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/{username}/newPost").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}/feed").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/user/{username}/update").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

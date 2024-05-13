@@ -47,4 +47,16 @@ public class UserService {
 
         userRepository.unfollowUser(currentUser.getId(), targetUser.getId());
     }
+
+    public User updateUser(String username, String email, String password,  String fullName, String bio, String profilePicture) {
+        User existingUser = userRepository.findByUsername(username)
+                                   .orElseThrow(() -> new RuntimeException("User not found"));
+        existingUser.setEmail(email);
+        existingUser.setFullName(fullName);
+        existingUser.setPassword(password);
+        existingUser.setFullName(fullName);
+        existingUser.setBio(bio);
+        existingUser.setProfilePicture(profilePicture);
+        return userRepository.save(existingUser);
+    }
 }
