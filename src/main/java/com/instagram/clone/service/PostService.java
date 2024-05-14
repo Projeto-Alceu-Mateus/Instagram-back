@@ -1,5 +1,7 @@
 package com.instagram.clone.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,11 @@ public class PostService {
     }
 
     public void getPostsById(Long userId) {
-        
+
+    }
+
+    public List<Post> getPostsByUser(Long userId) {
+        // Isso irá buscar todos os posts do usuário em ordem decrescente de criação
+        return postRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
     }
 }
