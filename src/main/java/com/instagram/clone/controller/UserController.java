@@ -120,7 +120,7 @@ public class UserController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
 
-        List<Post> posts = PostRepository.findAllByUserId(user.getId());
+        List<Post> posts = PostRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
         return ResponseEntity.ok(posts);
     }
 
