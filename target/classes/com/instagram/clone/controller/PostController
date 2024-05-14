@@ -1,0 +1,14 @@
+@RestController
+@RequestMapping("/post")
+public class PostController {
+
+    @PutMapping("/{postId}/update")
+    public ResponseEntity<?> updatePost(@PathVariable Long postId, @RequestBody PostDTO postDTO) {
+        try {
+            postService.updatePost(postId, postDTO);
+            return ResponseEntity.ok("Post updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating post: " + e.getMessage());
+        }
+    }
+}

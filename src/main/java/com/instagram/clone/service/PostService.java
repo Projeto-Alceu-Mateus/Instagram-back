@@ -32,4 +32,13 @@ public class PostService {
     public void getPostsById(Long userId) {
         
     }
+
+    public void updatePost(Long postId, PostDTO postDTO) throws Exception {
+        Post existingPost = postRepository.findById(postId)
+                                   .orElseThrow(() -> new Exception("Post not found"));
+        existingPost.setCaption(postDTO.getCaption());
+        existingPost.setImageUrl(postDTO.getImageUrl());
+    
+        postRepository.save(existingPost);
+    }
 }
