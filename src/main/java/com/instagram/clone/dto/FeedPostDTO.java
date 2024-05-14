@@ -10,6 +10,8 @@ public class FeedPostDTO {
     private String caption;
     private String imageUrl;
     private UserSummaryDTO userSummary;
+    private Long likeCount;     // Adicionando a contagem de likes
+    private Long commentCount;  // Adicionando a contagem de comentários
 
     @Data
     @NoArgsConstructor
