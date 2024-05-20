@@ -9,5 +9,9 @@ public class PostDTO {
 
     private String caption;
     private String imageUrl; // Certifique-se de que este campo está correto e necessário
+    public void setId(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setId'");
+    }
 
 }

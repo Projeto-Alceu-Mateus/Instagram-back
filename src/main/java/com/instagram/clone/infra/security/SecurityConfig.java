@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/{postId}/likes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/{postId}/likes/check-like").permitAll()
                         .requestMatchers(HttpMethod.POST, "/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/comments/post/{postId}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

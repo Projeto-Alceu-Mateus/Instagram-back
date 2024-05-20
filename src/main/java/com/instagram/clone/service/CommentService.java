@@ -11,6 +11,7 @@ import com.instagram.clone.repository.CommentRepository;
 import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,5 +48,18 @@ public class CommentService {
         } else {
             throw new RuntimeException("Post or User not found");
         }
+    }
+
+    public List<CommentDTO> getCommentsByPostId(Long postId) {
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        return comments.stream().map(comment -> {
+            CommentDTO dto = new CommentDTO();
+            dto.setId(comment.getId());
+            dto.setPostId(comment.getPost().getId());
+            dto.setUsername(comment.getUser().getUsername());
+            dto.setContent(comment.getText());
+            dto.setCreatedAt(comment.getCreatedAt().toString());
+            return dto;
+        }).toList();
     }
 }
