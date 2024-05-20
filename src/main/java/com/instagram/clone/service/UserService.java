@@ -1,9 +1,13 @@
 package com.instagram.clone.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.UserRepository;
 
@@ -46,5 +50,19 @@ public class UserService {
                 .orElseThrow(() -> new Exception("Target user not found"));
 
         userRepository.unfollowUser(currentUser.getId(), targetUser.getId());
+    }
+
+    public List<UserProfileDTO> searchUsers(String username) {
+        List<User> users = userRepository.findByUsernameStartingWithIgnoreCase(username);
+        return users.stream()
+                    .map(user -> new UserProfileDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getBio(),
+                        user.getProfilePicture(),
+                        (long) user.getFollowers().size(),
+                        (long) user.getFollowing().size()
+                    ))
+                    .collect(Collectors.toList());
     }
 }

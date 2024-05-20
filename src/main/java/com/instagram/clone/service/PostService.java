@@ -9,17 +9,15 @@ import org.springframework.stereotype.Service;
 
 import com.instagram.clone.dto.FeedPostDTO;
 import com.instagram.clone.dto.PostDTO;
-import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
+import com.instagram.clone.repository.CommentRepository;
+import com.instagram.clone.repository.LikeRepository;
 import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -29,6 +27,12 @@ public class PostService {
     private UserRepository userRepository;
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     public void createPost(String username, PostDTO postDTO) throws Exception {
         User user = userRepository.findByUsername(username)
@@ -47,7 +51,8 @@ public class PostService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
 
-        List<Object[]> results = postRepository.findAllWithLikesAndCommentsByUserIdIn(Collections.singletonList(user.getId()));
+        List<Object[]> results = postRepository
+                .findAllWithLikesAndCommentsByUserIdIn(Collections.singletonList(user.getId()));
 
         List<FeedPostDTO> feedPosts = results.stream()
                 .map(this::convertToFeedPostDTO)
@@ -76,5 +81,17 @@ public class PostService {
         dto.setUserSummary(userSummary);
 
         return dto;
+    }
+
+    public FeedPostDTO getPostById(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // Contando likes e comentários manualmente
+        long likeCount = likeRepository.findAll().stream().filter(like -> like.getPost().getId().equals(postId))
+                .count();
+        long commentCount = commentRepository.findByPostId(postId).size();
+
+        return convertToFeedPostDTO(new Object[] { post, likeCount, commentCount });
     }
 }
