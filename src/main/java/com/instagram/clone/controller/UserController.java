@@ -17,9 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.instagram.clone.dto.FeedPostDTO;
 import com.instagram.clone.dto.PostDTO;
 import com.instagram.clone.dto.UserProfileDTO;
-import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
-import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
 import com.instagram.clone.service.FeedService;
 import com.instagram.clone.service.PostService;
@@ -28,9 +26,6 @@ import com.instagram.clone.service.UserService;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
-    @Autowired
-    private PostRepository PostRepository;
     @Autowired
     private PostService postService;
 
@@ -46,8 +41,8 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<User>> searchUsers(@RequestParam String username) {
-        List<User> users = userRepository.findByUsernameStartingWithIgnoreCase(username);
+    public ResponseEntity<List<UserProfileDTO>> searchUsers(@RequestParam String username) {
+        List<UserProfileDTO> users = userService.searchUsers(username);
         return ResponseEntity.ok(users);
     }
 
