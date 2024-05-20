@@ -1,15 +1,26 @@
 package com.instagram.clone.service;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.instagram.clone.dto.FeedPostDTO;
 import com.instagram.clone.dto.PostDTO;
+import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PostService {
@@ -26,17 +37,44 @@ public class PostService {
         Post post = new Post();
         post.setCaption(postDTO.getCaption()); // Usa o getter para obter a legenda
         post.setImageUrl(postDTO.getImageUrl()); // Usa o getter para obter a URL da imagem
+
         post.setUser(user); // Associa o usuário ao post
 
         postRepository.save(post); // Salva o post no banco de dados
     }
 
-    public void getPostsById(Long userId) {
+    public List<FeedPostDTO> findPostsByUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
 
+        List<Object[]> results = postRepository.findAllWithLikesAndCommentsByUserIdIn(Collections.singletonList(user.getId()));
+
+        List<FeedPostDTO> feedPosts = results.stream()
+                .map(this::convertToFeedPostDTO)
+                .collect(Collectors.toList());
+
+        return feedPosts;
     }
 
-    public List<Post> getPostsByUser(Long userId) {
-        // Isso irá buscar todos os posts do usuário em ordem decrescente de criação
-        return postRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+    private FeedPostDTO convertToFeedPostDTO(Object[] tuple) {
+        Post post = (Post) tuple[0];
+        Long likeCount = (Long) tuple[1];
+        Long commentCount = (Long) tuple[2];
+
+        FeedPostDTO dto = new FeedPostDTO();
+        dto.setPostId(post.getId());
+        dto.setCaption(post.getCaption());
+        dto.setImageUrl(post.getImageUrl());
+        dto.setLikeCount(likeCount);
+        dto.setCommentCount(commentCount);
+
+        FeedPostDTO.UserSummaryDTO userSummary = new FeedPostDTO.UserSummaryDTO();
+        userSummary.setUserId(post.getUser().getId());
+        userSummary.setUsername(post.getUser().getUsername());
+        userSummary.setProfilePictureUrl(post.getUser().getProfilePicture());
+
+        dto.setUserSummary(userSummary);
+
+        return dto;
     }
 }

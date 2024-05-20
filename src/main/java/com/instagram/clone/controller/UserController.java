@@ -115,12 +115,8 @@ public class UserController {
     }
 
     @GetMapping("/{username}/posts")
-    public ResponseEntity<List<Post>> getUserPosts(@PathVariable String username) {
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user not found"));
-
-        List<Post> posts = PostRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+    public ResponseEntity<List<FeedPostDTO>> getUserPosts(@PathVariable String username) {
+        List<FeedPostDTO> posts = postService.findPostsByUser(username);
         return ResponseEntity.ok(posts);
     }
 
