@@ -11,6 +11,8 @@ import com.instagram.clone.repository.CommentRepository;
 import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -61,5 +63,18 @@ public class CommentService {
             dto.setCreatedAt(comment.getCreatedAt().toString());
             return dto;
         }).toList();
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId, String username) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        // Verificar se o usuário que está tentando excluir é o autor do comentário
+        if (!comment.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Unauthorized to delete comment");
+        }
+
+        commentRepository.delete(comment);
     }
 }
