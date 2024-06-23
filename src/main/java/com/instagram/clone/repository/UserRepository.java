@@ -41,4 +41,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query(value = "SELECT user_id FROM user_followers WHERE follower_id = :userId", nativeQuery = true)
     List<Long> findUserIdsFollowedBy(Long userId);
+
+    boolean existsByUsername(String username);
 }
