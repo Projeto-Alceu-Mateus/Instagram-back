@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/comments").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/post/{postId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/p/{postId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "user/{username}/verify").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/user/updateProfile/{username}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

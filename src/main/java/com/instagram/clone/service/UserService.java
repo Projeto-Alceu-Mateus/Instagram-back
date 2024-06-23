@@ -7,13 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.instagram.clone.dto.EditUserDTO;
 import com.instagram.clone.dto.UserProfileDTO;
+import com.instagram.clone.infra.security.TokenService;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
 
+    @Autowired
+    private TokenService tokenService;
+    
     @Autowired
     private UserRepository userRepository;
 
@@ -55,14 +62,53 @@ public class UserService {
     public List<UserProfileDTO> searchUsers(String username) {
         List<User> users = userRepository.findByUsernameStartingWithIgnoreCase(username);
         return users.stream()
-                    .map(user -> new UserProfileDTO(
+                .map(user -> new UserProfileDTO(
                         user.getId(),
                         user.getUsername(),
                         user.getBio(),
                         user.getProfilePicture(),
                         (long) user.getFollowers().size(),
-                        (long) user.getFollowing().size()
-                    ))
-                    .collect(Collectors.toList());
+                        (long) user.getFollowing().size()))
+                .collect(Collectors.toList());
+    }
+
+    public Boolean verifyIfUserExists(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    @Transactional
+    public EditUserDTO updateUserProfile(String username, EditUserDTO updateRequest) {
+       
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updateRequest.getUsername() != null && !updateRequest.getUsername().isEmpty() && !updateRequest.getUsername().equals(user.getUsername())) {
+            // Verifique se o novo username já está em uso
+            User existingUser = userRepository.findByUsername(updateRequest.getUsername()).orElse(null);
+            if (existingUser != null && !existingUser.getId().equals(user.getId())) {
+                throw new RuntimeException("Username already in use");
+            }
+            user.setUsername(updateRequest.getUsername());
+        }
+        if (updateRequest.getBio() != null && !updateRequest.getBio().equals(user.getBio())) {
+            user.setBio(updateRequest.getBio());
+        }
+        if (updateRequest.getProfilePicture() != null && !updateRequest.getProfilePicture().equals(user.getProfilePicture())) {
+            user.setProfilePicture(updateRequest.getProfilePicture());
+        }
+
+        userRepository.save(user);
+
+        // Gerar novo token JWT
+        String newToken = tokenService.generateToken(user);
+
+        EditUserDTO responseDTO = new EditUserDTO();
+        responseDTO.setUsername(user.getUsername());
+        responseDTO.setBio(user.getBio());
+        responseDTO.setProfilePicture(user.getProfilePicture());
+        responseDTO.setToken(newToken);
+
+        return responseDTO;
     }
 }
