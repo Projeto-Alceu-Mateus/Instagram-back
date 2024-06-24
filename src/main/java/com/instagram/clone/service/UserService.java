@@ -10,17 +10,29 @@ import org.springframework.stereotype.Service;
 import com.instagram.clone.dto.EditUserDTO;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.infra.security.TokenService;
+import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
+import com.instagram.clone.repository.CommentRepository;
+import com.instagram.clone.repository.LikeRepository;
+import com.instagram.clone.repository.PostRepository;
 import com.instagram.clone.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private TokenService tokenService;
-    
+
     @Autowired
     private UserRepository userRepository;
 
@@ -78,12 +90,12 @@ public class UserService {
 
     @Transactional
     public EditUserDTO updateUserProfile(String username, EditUserDTO updateRequest) {
-       
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (updateRequest.getUsername() != null && !updateRequest.getUsername().isEmpty() && !updateRequest.getUsername().equals(user.getUsername())) {
+        if (updateRequest.getUsername() != null && !updateRequest.getUsername().isEmpty()
+                && !updateRequest.getUsername().equals(user.getUsername())) {
             // Verifique se o novo username já está em uso
             User existingUser = userRepository.findByUsername(updateRequest.getUsername()).orElse(null);
             if (existingUser != null && !existingUser.getId().equals(user.getId())) {
@@ -94,7 +106,8 @@ public class UserService {
         if (updateRequest.getBio() != null && !updateRequest.getBio().equals(user.getBio())) {
             user.setBio(updateRequest.getBio());
         }
-        if (updateRequest.getProfilePicture() != null && !updateRequest.getProfilePicture().equals(user.getProfilePicture())) {
+        if (updateRequest.getProfilePicture() != null
+                && !updateRequest.getProfilePicture().equals(user.getProfilePicture())) {
             user.setProfilePicture(updateRequest.getProfilePicture());
         }
 
@@ -111,4 +124,32 @@ public class UserService {
 
         return responseDTO;
     }
+
+    @Transactional
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Long userId = user.getId();
+
+        // Deletar todos os comentários e likes dos posts do usuário
+        userRepository.deleteCommentsByUserPosts(userId);
+        userRepository.deleteLikesByUserPosts(userId);
+
+        // Deletar todos os comentários do usuário
+        userRepository.deleteCommentsByUserId(userId);
+
+        // Deletar todos os likes do usuário
+        userRepository.deleteLikesByUserId(userId);
+
+        // Deletar todos os posts do usuário
+        userRepository.deletePostsByUserId(userId);
+
+        // Deletar todas as referências de seguidores e seguidos
+        userRepository.deleteAllFollowsByUserId(userId);
+
+        // Deletar o usuário
+        userRepository.deleteUserById(userId);
+    }
+
 }

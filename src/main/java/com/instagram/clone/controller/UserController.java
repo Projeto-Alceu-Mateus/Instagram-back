@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -143,5 +144,10 @@ public class UserController {
         EditUserDTO updatedUser = userService.updateUserProfile(username, updateRequest);
         return ResponseEntity.ok(updatedUser);
     }
-
+    
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        userService.deleteUser(username);
+        return ResponseEntity.noContent().build();
+    }
 }
