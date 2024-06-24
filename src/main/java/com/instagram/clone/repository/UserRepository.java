@@ -14,6 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
+    @SuppressWarnings("null")
     Optional<User> findById(Long id);
 
     List<User> findByUsernameStartingWithIgnoreCase(String username);
@@ -76,4 +77,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "DELETE FROM users WHERE id = :userId", nativeQuery = true)
     void deleteUserById(Long userId);
+
+    boolean existsByEmail(String email);
 }
