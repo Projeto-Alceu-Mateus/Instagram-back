@@ -10,26 +10,14 @@ import org.springframework.stereotype.Service;
 import com.instagram.clone.dto.EditUserDTO;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.infra.security.TokenService;
-import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
-import com.instagram.clone.repository.CommentRepository;
-import com.instagram.clone.repository.LikeRepository;
-import com.instagram.clone.repository.PostRepository;
+
 import com.instagram.clone.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private LikeRepository likeRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
     @Autowired
     private TokenService tokenService;
 
@@ -150,6 +138,9 @@ public class UserService {
 
         // Deletar o usuário
         userRepository.deleteUserById(userId);
+    }
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 
 }
