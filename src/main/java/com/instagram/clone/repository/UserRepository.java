@@ -11,11 +11,12 @@ import com.instagram.clone.model.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);
 
+    @SuppressWarnings("null")
     Optional<User> findById(Long id);
 
     List<User> findByUsernameStartingWithIgnoreCase(String username);
@@ -35,6 +36,11 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Modifying
     @Query(value = "DELETE FROM user_followers WHERE user_id = :userId AND follower_id = :followerId", nativeQuery = true)
     void unfollowUser(Long userId, Long followerId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM user_followers WHERE user_id = :userId OR follower_id = :userId", nativeQuery = true)
+    void deleteAllFollowsByUserId(Long userId);
 
     @Query("SELECT COUNT(f) > 0 FROM User u JOIN u.following f WHERE u.id = :userId AND f.id = :targetId")
     boolean isFollowing(@Param("userId") Long userId, @Param("targetId") Long targetId);

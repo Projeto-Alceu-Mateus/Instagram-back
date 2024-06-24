@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.instagram.clone.model.Comment;
+import com.instagram.clone.model.User;
 
 import java.util.List;
 
@@ -11,5 +12,8 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     // Buscar comentários por post
     List<Comment> findByPostId(Long postId);
+
     void deleteByPostId(Long postId);
+
+    void deleteByUser(User user);
 }
