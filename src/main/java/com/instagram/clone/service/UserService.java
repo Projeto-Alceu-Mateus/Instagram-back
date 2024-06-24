@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.instagram.clone.dto.EditUserDTO;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.infra.security.TokenService;
+import com.instagram.clone.model.Post;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.CommentRepository;
 import com.instagram.clone.repository.LikeRepository;
@@ -129,20 +130,26 @@ public class UserService {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Long userId = user.getId();
+
+        // Deletar todos os comentários e likes dos posts do usuário
+        userRepository.deleteCommentsByUserPosts(userId);
+        userRepository.deleteLikesByUserPosts(userId);
+
         // Deletar todos os comentários do usuário
-        commentRepository.deleteByUser(user);
+        userRepository.deleteCommentsByUserId(userId);
 
         // Deletar todos os likes do usuário
-        likeRepository.deleteByUser(user);
+        userRepository.deleteLikesByUserId(userId);
 
         // Deletar todos os posts do usuário
-        postRepository.deleteByUser(user);
+        userRepository.deletePostsByUserId(userId);
 
         // Deletar todas as referências de seguidores e seguidos
-        userRepository.deleteAllFollowsByUserId(user.getId());
+        userRepository.deleteAllFollowsByUserId(userId);
 
         // Deletar o usuário
-        userRepository.delete(user);
+        userRepository.deleteUserById(userId);
     }
 
 }
