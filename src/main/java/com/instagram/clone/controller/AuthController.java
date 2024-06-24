@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.instagram.clone.dto.ChangeEmailDTO;
 import com.instagram.clone.dto.ChangePasswordDTO;
 import com.instagram.clone.dto.LoginRequestDTO;
 import com.instagram.clone.dto.RegisterRequestDTO;
@@ -77,5 +78,15 @@ public class AuthController {
 
         // Retorna o novo token no header da resposta
         return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
+    }
+    @PutMapping("/change-email")
+    public ResponseEntity<Void> changeEmail(@RequestBody ChangeEmailDTO changeEmailDTO) {
+        User user = repository.findByUsername(changeEmailDTO.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setEmail(changeEmailDTO.getEmail());
+        repository.save(user);
+
+        return ResponseEntity.ok().build();
     }
 }

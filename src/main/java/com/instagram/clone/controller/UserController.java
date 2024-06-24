@@ -140,14 +140,22 @@ public class UserController {
     }
 
     @PutMapping("/updateProfile/{username}")
-    public ResponseEntity<EditUserDTO> updateProfile(@PathVariable String username, @RequestBody EditUserDTO updateRequest) {
+    public ResponseEntity<EditUserDTO> updateProfile(@PathVariable String username,
+            @RequestBody EditUserDTO updateRequest) {
         EditUserDTO updatedUser = userService.updateUserProfile(username, updateRequest);
         return ResponseEntity.ok(updatedUser);
     }
-    
+
     @DeleteMapping("/{username}")
     public ResponseEntity<Void> deleteUser(@PathVariable String username) {
         userService.deleteUser(username);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean exists = userRepository.existsByEmail(email);
+        return ResponseEntity.ok(exists);
+    }
+
 }

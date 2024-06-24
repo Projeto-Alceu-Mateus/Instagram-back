@@ -36,7 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/user/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/{currentUsername}/follow/{targetUsername}").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/{currentUsername}/unfollow/{targetUsername}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/{currentUsername}/unfollow/{targetUsername}")
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}/isFollowing/{targetUsername}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/{username}/newPost").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}/posts").permitAll()
@@ -50,9 +51,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/p/{postId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "user/{username}/verify").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/user/updateProfile/{username}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/p/{postId}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/user/{username}").permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/auth/change-password").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/p/{postId}").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/user/{username}").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/auth/change-password").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/auth/change-email").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
