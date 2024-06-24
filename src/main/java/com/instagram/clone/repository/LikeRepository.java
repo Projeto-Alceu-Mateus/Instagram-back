@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.instagram.clone.model.Like;
 import com.instagram.clone.model.Post;
@@ -14,4 +15,7 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     Optional<Like> findByUserAndPost(User user, Post post);
 
     void deleteByUserAndPost(User user, Post post);
+
+    @Transactional
+    void deleteByUser(User user);
 }

@@ -11,6 +11,7 @@ import com.instagram.clone.dto.EditUserDTO;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.infra.security.TokenService;
 import com.instagram.clone.model.User;
+import com.instagram.clone.repository.LikeRepository;
 import com.instagram.clone.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -20,6 +21,9 @@ public class UserService {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private LikeRepository likeRepository;
     
     @Autowired
     private UserRepository userRepository;
@@ -110,5 +114,23 @@ public class UserService {
         responseDTO.setToken(newToken);
 
         return responseDTO;
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Remove todos os likes do usuário
+        likeRepository.deleteByUser(user);
+
+        // Remove o usuário dos seguidores e deixar de seguir todos os outros usuários
+        user.getFollowers().forEach(follower -> {
+            follower.getFollowing().remove(user);
+        });
+        user.getFollowing().clear();
+
+        // Remove o usuário do banco de dados
+        userRepository.delete(user);
     }
 }
