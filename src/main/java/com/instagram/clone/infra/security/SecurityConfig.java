@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/user/updateProfile/{username}").permitAll()
                         .requestMatchers(HttpMethod.DELETE,"/p/{postId}").permitAll()
                         .requestMatchers(HttpMethod.DELETE,"/user/{username}").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/auth/change-password").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
