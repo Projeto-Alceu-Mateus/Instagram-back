@@ -23,4 +23,3 @@ public class PostController {
         return ResponseEntity.ok(postDetail);
     }
 }
-
