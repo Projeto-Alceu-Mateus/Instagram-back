@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.instagram.clone.dto.ChangePasswordDTO;
 import com.instagram.clone.dto.LoginRequestDTO;
 import com.instagram.clone.dto.RegisterRequestDTO;
 import com.instagram.clone.dto.ResponseDTO;
@@ -56,5 +58,24 @@ public class AuthController {
             return ResponseEntity.ok(new ResponseDTO(newUser.getUsername(), token));
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        User user = repository.findByUsername(changePasswordDTO.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            return ResponseEntity.badRequest().body(null); // Senha antiga incorreta
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        repository.save(user);
+
+        // Invalida o token antigo e gera um novo token
+        String token = tokenService.generateToken(user);
+
+        // Retorna o novo token no header da resposta
+        return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
     }
 }
