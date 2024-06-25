@@ -1,6 +1,8 @@
 package com.instagram.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,12 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.instagram.clone.dto.ChangeEmailDTO;
 import com.instagram.clone.dto.ChangePasswordDTO;
+import com.instagram.clone.dto.EmailDTO;
 import com.instagram.clone.dto.LoginRequestDTO;
 import com.instagram.clone.dto.RegisterRequestDTO;
+import com.instagram.clone.dto.ResetPasswordDTO;
 import com.instagram.clone.dto.ResponseDTO;
+import com.instagram.clone.dto.VerificationDTO;
 import com.instagram.clone.infra.security.TokenService;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.UserRepository;
+import com.instagram.clone.service.EmailService;
+import com.instagram.clone.service.UserService;
 
 import java.util.Optional;
 
@@ -27,6 +34,12 @@ public class AuthController {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @SuppressWarnings("rawtypes")
     @PostMapping("/login")
@@ -79,6 +92,7 @@ public class AuthController {
         // Retorna o novo token no header da resposta
         return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
     }
+
     @PutMapping("/change-email")
     public ResponseEntity<Void> changeEmail(@RequestBody ChangeEmailDTO changeEmailDTO) {
         User user = repository.findByUsername(changeEmailDTO.getUsername())
@@ -88,5 +102,35 @@ public class AuthController {
         repository.save(user);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody EmailDTO emailDTO) {
+        String email = emailDTO.getEmail();
+        boolean exists = userService.existsByEmail(email);
+        if (exists) {
+            emailService.sendVerificationCode(email);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(404).build(); // Retorna 404 se o email não existir
+        }
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<Void> verifyCode(@RequestBody VerificationDTO verificationDTO) {
+        if (emailService.verifyCode(verificationDTO.getEmail(), verificationDTO.getCode())) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        if (emailService.verifyCode(resetPasswordDTO.getEmail(), resetPasswordDTO.getCode())) {
+            userService.updatePassword(resetPasswordDTO.getEmail(), resetPasswordDTO.getNewPassword());
+            emailService.removeVerificationCode(resetPasswordDTO.getEmail());
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 }
