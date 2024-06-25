@@ -116,7 +116,7 @@ public class UserService {
     @Transactional
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Long userId = user.getId();
 
@@ -139,8 +139,15 @@ public class UserService {
         // Deletar o usuário
         userRepository.deleteUserById(userId);
     }
+
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
+    public void updatePassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }
