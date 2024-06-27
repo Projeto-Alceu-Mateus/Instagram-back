@@ -1,6 +1,7 @@
 package com.instagram.clone.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,12 @@ import org.springframework.web.server.ResponseStatusException;
 import com.instagram.clone.dto.EditUserDTO;
 import com.instagram.clone.dto.FeedPostDTO;
 import com.instagram.clone.dto.PostDTO;
+import com.instagram.clone.dto.UserLikeDTO;
 import com.instagram.clone.dto.UserProfileDTO;
 import com.instagram.clone.model.User;
 import com.instagram.clone.repository.UserRepository;
 import com.instagram.clone.service.FeedService;
+import com.instagram.clone.service.LikeService;
 import com.instagram.clone.service.PostService;
 import com.instagram.clone.service.UserService;
 
@@ -32,6 +35,9 @@ public class UserController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private LikeService likeService;
+    
     @Autowired
     private UserService userService;
 
@@ -158,4 +164,12 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 
+    @GetMapping("/{postId}/likes/users")
+    public ResponseEntity<List<UserLikeDTO>> getPostLikes(@PathVariable Long postId) {
+        List<User> usersWhoLiked = likeService.getUsersWhoLikedPost(postId);
+        List<UserLikeDTO> userLikeDTOs = usersWhoLiked.stream()
+                .map(user -> new UserLikeDTO(user.getId(), user.getUsername(), user.getProfilePicture()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userLikeDTOs);
+    }
 }
