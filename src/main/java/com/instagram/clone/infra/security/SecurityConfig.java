@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/user/{postId}/likes/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}/following").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{username}/followers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/top-users").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

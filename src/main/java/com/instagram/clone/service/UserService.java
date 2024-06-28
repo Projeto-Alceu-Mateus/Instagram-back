@@ -158,4 +158,8 @@ public class UserService {
     public List<User> getFollowing(String username) {
         return userRepository.findFollowingByUsername(username);
     }
+
+    public List<User> getTopUsers() {
+        return userRepository.findTopUsers(PageRequest.of(0, 5));
+    }
 }
