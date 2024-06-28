@@ -190,4 +190,13 @@ public class UserController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(followingDTO);
     }
+
+    @GetMapping("/top-users")
+    public ResponseEntity<List<UserLikeDTO>> getTopUsers() {
+        List<User> topUsers = userService.getTopUsers();
+        List<UserLikeDTO> topUserDTOs = topUsers.stream()
+                .map(user -> new UserLikeDTO(user.getId(), user.getUsername(), user.getProfilePicture()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(topUserDTOs);
+    }
 }
