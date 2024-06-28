@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/comments/{commentId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/{postId}/likes/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/{username}/following").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/{username}/followers").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
