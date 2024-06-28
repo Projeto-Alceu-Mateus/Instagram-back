@@ -172,4 +172,22 @@ public class UserController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(userLikeDTOs);
     }
+
+    @GetMapping("/{username}/followers")
+    public ResponseEntity<List<UserLikeDTO>> getFollowers(@PathVariable String username) {
+        List<User> followers = userService.getFollowers(username);
+        List<UserLikeDTO> followersDTO = followers.stream()
+                .map(user -> new UserLikeDTO(user.getId(), user.getUsername(), user.getProfilePicture()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(followersDTO);
+    }
+
+    @GetMapping("/{username}/following")
+    public ResponseEntity<List<UserLikeDTO>> getFollowing(@PathVariable String username) {
+        List<User> following = userService.getFollowing(username);
+        List<UserLikeDTO> followingDTO = following.stream()
+                .map(user -> new UserLikeDTO(user.getId(), user.getUsername(), user.getProfilePicture()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(followingDTO);
+    }
 }

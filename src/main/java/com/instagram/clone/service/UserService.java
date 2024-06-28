@@ -150,4 +150,12 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    public List<User> getFollowers(String username) {
+        return userRepository.findFollowersByUsername(username);
+    }
+
+    public List<User> getFollowing(String username) {
+        return userRepository.findFollowingByUsername(username);
+    }
 }
