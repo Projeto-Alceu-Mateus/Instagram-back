@@ -79,4 +79,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void deleteUserById(Long userId);
 
     boolean existsByEmail(String email);
+
+    @Query("SELECT u FROM User u JOIN u.followers f WHERE f.username = :username")
+    List<User> findFollowersByUsername(String username);
+
+    @Query("SELECT u FROM User u JOIN u.following f WHERE f.username = :username")
+    List<User> findFollowingByUsername(String username);
 }
